@@ -32,6 +32,7 @@ public:
 	void restart();
 
 	void update();
+	void updateDT();
 	void updateNetVisual();
 	void updateSFEvents();
 

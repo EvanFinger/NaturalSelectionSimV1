@@ -36,26 +36,26 @@
     <ClCompile Include="simView.cpp">
       <Filter>SimulationView</Filter>
     </ClCompile>
-    <ClCompile Include="ascii.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="body.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="networkView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Line.cpp">
       <Filter>GUI</Filter>
-    </ClCompile>
-    <ClCompile Include="neuralNetwork.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="simGui.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ascii.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="networkView.cpp">
+      <Filter>SimulationView</Filter>
+    </ClCompile>
+    <ClCompile Include="neuralNetwork.cpp">
+      <Filter>Brain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -65,35 +65,35 @@
     <ClInclude Include="simulation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="simData.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="simView.h">
       <Filter>SimulationView</Filter>
     </ClInclude>
     <ClInclude Include="Genome.h">
       <Filter>Brain</Filter>
     </ClInclude>
-    <ClInclude Include="ascii.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="body.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="networkView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Line.h">
       <Filter>GUI</Filter>
-    </ClInclude>
-    <ClInclude Include="neuralNetwork.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simGui.h">
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ascii.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="networkView.h">
+      <Filter>SimulationView</Filter>
+    </ClInclude>
+    <ClInclude Include="neuralNetwork.h">
+      <Filter>Brain</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

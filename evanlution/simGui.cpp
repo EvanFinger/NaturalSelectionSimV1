@@ -25,7 +25,9 @@ void simGui::initResButtons()
 
 	this->btn128 = new sfGUI::Button
 	(
-		this->simulationData->window, this->bounds.getPosition().x + this->bounds.getGlobalBounds().width / 2.f - 50.f + this->btn64->getBoundingRect()->getGlobalBounds().width, this->bounds.getPosition().y + 100.f,
+		this->simulationData->window, 
+		this->bounds.getPosition().x + this->bounds.getGlobalBounds().width / 2.f - 50.f + this->btn64->getBoundingRect()->getGlobalBounds().width, 
+		this->bounds.getPosition().y + 100.f,
 		100.f, 50.f,
 		this->font, 20, "128 x 128", 0
 	);
@@ -62,10 +64,11 @@ void simGui::initResButtons()
 
 void simGui::initPopulationSelector()
 {
+	//POPULATION
 	this->populationSelector = new PopulationSelector
 	(
 		this->simulationData->window, this->bounds.getPosition().x + 100.f, this->bounds.getPosition().y + 250.f,
-		50.f, 100.f, 50.f, this->font, 20, 2000, 0
+		50.f, 100.f, 50.f, this->font, 20, 3000, this->simulationData->populationBuffer
 	);
 
 	this->populationSelector->setArrowColors(sf::Color(139, 72, 199, 200), sf::Color(95, 49, 135, 255), sf::Color(41, 21, 59, 150));
@@ -83,6 +86,29 @@ void simGui::initPopulationSelector()
 			this->populationSelector->getPosition().y - this->popLabel.getGlobalBounds().height - 10.f
 		)
 	);
+
+	//NEURAL CONNECTIONS
+	this->connectionCount = new PopulationSelector
+	(
+		this->simulationData->window, this->bounds.getPosition().x + 100.f, this->bounds.getPosition().y + 400.f,
+		50.f, 100.f, 50.f, this->font, 20, 1000, this->simulationData->numGenes
+	);
+
+	this->connectionCount->setArrowColors(sf::Color(139, 72, 199, 200), sf::Color(95, 49, 135, 255), sf::Color(41, 21, 59, 150));
+	this->connectionCount->setDisplayColors(sf::Color(41, 21, 59, 150), sf::Color::White);
+
+	this->connectionLabel.setFont(this->font);
+	this->connectionLabel.setCharacterSize(30);
+	this->connectionLabel.setFillColor(sf::Color::White);
+	this->connectionLabel.setString("Set Connections");
+	this->connectionLabel.setPosition
+	(
+		sf::Vector2f
+		(
+			this->connectionCount->getPosition().x + this->connectionCount->getGlobalBounds().width / 2 - this->connectionLabel.getGlobalBounds().width / 2,
+			this->connectionCount->getPosition().y - this->connectionLabel.getGlobalBounds().height - 10.f
+		)
+	);
 }
 
 void simGui::initRestartButton()
@@ -92,6 +118,19 @@ void simGui::initRestartButton()
 		this->simulationData->window, this->bounds.getPosition().x + 800.f, 275.f, 50.f, 50.f, this->font, 20, "->", 0
 	);
 	this->restart->setBoundingRectColors
+	(
+		sf::Color(139, 72, 199, 200), sf::Color(95, 49, 135, 255), sf::Color(41, 21, 59, 150)
+	);
+}
+
+void simGui::initPausePlayButton()
+{
+	this->pausePlayButton = new sfGUI::Button
+	(
+		this->simulationData->window,
+		this->bounds.getPosition().x + 800.f - 25.f, 325.f, 100.f, 50.f, this->font, 20, "Pause",0
+	);
+	this->pausePlayButton->setBoundingRectColors
 	(
 		sf::Color(139, 72, 199, 200), sf::Color(95, 49, 135, 255), sf::Color(41, 21, 59, 150)
 	);
@@ -112,6 +151,7 @@ simGui::simGui(simData* data)
 	this->initResButtons();
 	this->initPopulationSelector();
 	this->initRestartButton();
+	this->initPausePlayButton();
 
 	
 
@@ -134,6 +174,7 @@ void simGui::masterUpdate()
 	this->updateResolutionButtons();
 	this->updatePopulationSelector();
 	this->updateRestartButton();
+	this->updatePausePlayButton();
 }
 
 void simGui::updateResolutionButtons()
@@ -155,6 +196,9 @@ void simGui::updatePopulationSelector()
 {
 	this->populationSelector->update();
 	this->simulationData->populationBuffer = this->populationSelector->getPop();
+
+	this->connectionCount->update();
+	this->simulationData->numGenes = this->connectionCount->getPop();
 }
 
 void simGui::updateRestartButton()
@@ -164,12 +208,26 @@ void simGui::updateRestartButton()
 		this->restartSimulation = true;
 }
 
+void simGui::updatePausePlayButton()
+{
+	this->pausePlayButton->update();
+	if (this->pausePlayButton->getState() == BTN_RELEASED)
+	{
+		this->simulationData->paused = !this->simulationData->paused;
+	}
+	if (this->simulationData->paused)
+		this->pausePlayButton->setString("Play");
+	else
+		this->pausePlayButton->setString("Pause");
+}
+
 void simGui::masterRender()
 {
 	this->simulationData->window->draw(this->bounds);
 	this->renderResolutionButtons();
 	this->renderPopulationSelector();
 	this->renderRestartButton();
+	this->renderPausePlayButton();
 	
 }
 
@@ -185,11 +243,19 @@ void simGui::renderPopulationSelector()
 {
 	this->populationSelector->render();
 	this->simulationData->window->draw(this->popLabel);
+
+	this->connectionCount->render();
+	this->simulationData->window->draw(this->connectionLabel);
 }
 
 void simGui::renderRestartButton()
 {
 	this->restart->render();
+}
+
+void simGui::renderPausePlayButton()
+{
+	this->pausePlayButton->render();
 }
 
 

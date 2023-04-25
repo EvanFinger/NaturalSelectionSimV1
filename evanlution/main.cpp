@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "simulation.h"
 
 int main()

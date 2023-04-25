@@ -13,6 +13,7 @@ public:
 	);
 	~networkView();
 	
+	void update();
 	void render();
 private:
 	simData* simulationData;
@@ -21,9 +22,9 @@ private:
 
 	sf::RectangleShape boundingRect;
 
-	std::vector<sf::CircleShape> inputNeurons;
-	std::vector<sf::CircleShape> hiddenNeurons;
-	std::vector<sf::CircleShape> outputNeurons;
+	std::vector<sf::CircleShape> inputRenderNeurons;
+	std::vector<sf::CircleShape> hiddenRenderNeurons;
+	std::vector<sf::CircleShape> outputRenderNeurons;
 
 	std::vector<std::vector<sf::CircleShape>> visualNeuralNet =
 	{
@@ -33,6 +34,10 @@ private:
 	};
 
 	std::vector<Line> synapses;
+
+	void updateNeuronToggles();
+	void updateNeuronShadings(bool active, int layer, int neuron);
+	bool clicked = false;
 
 	void initNeuronVisuals();
 	void drawSynapses();

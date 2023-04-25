@@ -8,9 +8,16 @@
 Neuron::Neuron(unsigned type, unsigned id)
 {
 	this->p_outVal = 0;
-	this->neuronType = type;
-	this->neuronID = id;
+	this->layer = type;
+	this->neuron = id;
 	this->hasConnection = false;
+}
+Neuron::~Neuron()
+{
+	for (auto& it : this->p_connections)
+	{
+		delete it;
+	}
 }
 
 const std::vector<Connection*> Neuron::getConnections() const
@@ -45,10 +52,11 @@ void Neuron::generateNewConnection(Neuron* _to, double _weight)
 
 void Neuron::feedForward()
 {
-	for (size_t connection = 0; connection < this->p_connections.size(); connection++)
-	{
-		p_connections[connection]->target_Neuron->recieve(this->p_outVal * p_connections[connection]->weight);
-	}
+		for (size_t connection = 0; connection < this->p_connections.size(); connection++)
+		{
+			p_connections[connection]->target_Neuron->recieve(this->p_outVal * p_connections[connection]->weight);
+		}
+	this->p_outVal = 0;
 }
 
 void Neuron::calculateOutput()
@@ -66,9 +74,10 @@ void Neuron::setInputNeuron(double input)
 //************************* Net Class *************************
 
 
-Net::Net(const std::vector<unsigned>& topology, Genome* genome)
+Net::Net(const std::vector<unsigned>& topology, Genome* genome, simData* simulationData)
 {
 	this->genome = genome;
+	this->simulationData = simulationData;
 
 	unsigned numLayers = static_cast<unsigned>(topology.size());
 	//create layers using topology
@@ -84,20 +93,37 @@ Net::Net(const std::vector<unsigned>& topology, Genome* genome)
 	}
 
 	this->initConnections();
-	this->cleanNetwork();
+	//this->cleanNetwork();
+}
+Net::~Net()
+{
+	for (auto& layer : this->p_layers)
+	{
+		for (auto& neuron : layer)
+		{
+			delete neuron;
+		}
+	}
 }
 
 void Net::feedForward()
 {
+
 	for (unsigned layer = 0; layer < p_layers.size() - 1; layer++)
 	{
 		for (unsigned neuron = 0; neuron < p_layers[layer].size() - 1; neuron++)
 		{
-			p_layers[layer][neuron]->feedForward();
+			if(this->simulationData->neuronToggleBools[layer][neuron])
+				p_layers[layer][neuron]->feedForward();
 		}
-		for (unsigned neuron = 0; neuron < p_layers[layer + 1].size() - 1; neuron++)
+		for (unsigned neuron = 0; neuron < p_layers[static_cast<std::vector<Layer, std::allocator<Layer>>::size_type>(layer) + 1].size() - 1; neuron++)
 		{
-			p_layers[layer+1][neuron]->calculateOutput();
+			if (this->simulationData->neuronToggleBools[layer][neuron])
+				p_layers[layer+1][neuron]->calculateOutput();
+			else
+			{
+				p_layers[layer + 1][neuron]->setInputNeuron(NULL);
+			}
 		}
 	}
 }
@@ -110,13 +136,35 @@ std::vector<Layer> Net::getNet() const
 std::vector<double> Net::getOutputs() const
 {
 	std::vector<double> outs;
-	for (auto& neuron : this->p_layers[2])
+	for (int i = 0; i<this->p_layers[2].size() - 1; i++)
 	{
-		outs.push_back(neuron->getOutput());
-		//std::cout << neuron->getOutput() << "\n";
+		if (this->simulationData->neuronToggleBools[2][i])
+			outs.push_back(this->p_layers[2][i]->getOutput());
+		
+	//std::cout << "in"<<this->p_layers[2][i]->getOutput() << "\n";
 	}
-
+	
+	outs = softmax(outs);
+	for (auto& out : outs)
+	{
+		//std::cout << "out"<<out << "\n";
+	}
 	return outs;
+}
+
+std::vector<double> Net::softmax(std::vector<double> input) const //Turns neuron outputs into probabilities
+{
+	double sum = 0;
+	std::vector<double> output;
+	for (auto in : input)
+	{
+		sum += exp(in);
+	}
+	for (auto in : input)
+	{
+		output.push_back(exp(in) / sum);
+	}
+	return output;
 }
 
 void Net::initConnections()

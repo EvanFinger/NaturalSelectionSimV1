@@ -26,6 +26,11 @@ networkView::~networkView()
 {
 }
 
+void networkView::update()
+{
+	this->updateNeuronToggles();
+}
+
 void networkView::render()
 {
 	this->simulationData->window->draw(this->boundingRect);
@@ -47,6 +52,64 @@ void networkView::render()
 	}
 }
 
+void networkView::updateNeuronToggles()
+{
+	sf::Vector2f currentMousePosView = this->simulationData->window->mapPixelToCoords(sf::Mouse::getPosition(*this->simulationData->window));
+
+	for (size_t layer = 0; layer < this->visualNeuralNet.size(); layer++)
+	{
+		for (size_t neuron = 0; neuron < this->visualNeuralNet[layer].size() - 1; neuron++)
+		{
+			if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+			{
+				if (this->visualNeuralNet[layer][neuron].getGlobalBounds().contains(currentMousePosView))
+				{
+					if (!this->clicked)
+					{
+						this->simulationData->neuronToggleBools[layer][neuron] = !this->simulationData->neuronToggleBools[layer][neuron];
+						this->clicked = true;
+					}
+				}
+			}
+			else
+			{
+				this->clicked = false;
+			}
+			this->updateNeuronShadings(this->simulationData->neuronToggleBools[layer][neuron], layer, neuron);
+		}
+	}
+}
+
+void networkView::updateNeuronShadings(bool active, int layer, int neuron)
+{
+	if (active)
+	{
+		this->visualNeuralNet[layer][neuron].setFillColor
+		(
+			sf::Color
+			(
+				this->visualNeuralNet[layer][neuron].getFillColor().r,
+				this->visualNeuralNet[layer][neuron].getFillColor().g,
+				this->visualNeuralNet[layer][neuron].getFillColor().b,
+				255
+			)
+		);
+	}
+	else
+	{
+		this->visualNeuralNet[layer][neuron].setFillColor
+		(
+			sf::Color
+			(
+				this->visualNeuralNet[layer][neuron].getFillColor().r,
+				this->visualNeuralNet[layer][neuron].getFillColor().g,
+				this->visualNeuralNet[layer][neuron].getFillColor().b,
+				155
+			)
+		);
+	}
+}
+
 void networkView::initNeuronVisuals()
 {
 	float rad = 10.f;
@@ -59,8 +122,11 @@ void networkView::initNeuronVisuals()
 		this->visualNeuralNet[0][i].setPosition
 		(
 			sf::Vector2f(
-				this->boundingRect.getPosition().x + (this->boundingRect.getGlobalBounds().width / 4) - this->visualNeuralNet[0][i].getGlobalBounds().width,
-				this->boundingRect.getPosition().y + (this->boundingRect.getGlobalBounds().height - rad*2*this->visualNeuralNet[0].size()) / 2 + this->visualNeuralNet[0][i].getGlobalBounds().height * i
+				this->boundingRect.getPosition().x + 
+				(this->boundingRect.getGlobalBounds().width / 4) - this->visualNeuralNet[0][i].getGlobalBounds().width,
+				this->boundingRect.getPosition().y + 
+				(this->boundingRect.getGlobalBounds().height - 
+					rad*2*this->visualNeuralNet[0].size()) / 2 + this->visualNeuralNet[0][i].getGlobalBounds().height * i
 				)
 		);
 
@@ -75,8 +141,11 @@ void networkView::initNeuronVisuals()
 		this->visualNeuralNet[1][i].setPosition
 		(
 			sf::Vector2f(
-				this->boundingRect.getPosition().x + (this->boundingRect.getGlobalBounds().width / 2) - this->visualNeuralNet[1][i].getGlobalBounds().width,
-				this->boundingRect.getPosition().y + (this->boundingRect.getGlobalBounds().height - rad * 2 * this->visualNeuralNet[1].size()) / 2 + this->visualNeuralNet[1][i].getGlobalBounds().height * i
+				this->boundingRect.getPosition().x + 
+				(this->boundingRect.getGlobalBounds().width / 2) - this->visualNeuralNet[1][i].getGlobalBounds().width,
+				this->boundingRect.getPosition().y + 
+				(this->boundingRect.getGlobalBounds().height
+					- rad * 2 * this->visualNeuralNet[1].size()) / 2 + this->visualNeuralNet[1][i].getGlobalBounds().height * i
 			)
 		);
 
@@ -91,8 +160,11 @@ void networkView::initNeuronVisuals()
 		this->visualNeuralNet[2][i].setPosition
 		(
 			sf::Vector2f(
-				this->boundingRect.getPosition().x + (this->boundingRect.getGlobalBounds().width / 4)*3 - this->visualNeuralNet[2][i].getGlobalBounds().width,
-				this->boundingRect.getPosition().y + (this->boundingRect.getGlobalBounds().height - rad * 2 * this->visualNeuralNet[2].size()) / 2 + this->visualNeuralNet[2][i].getGlobalBounds().height * i
+				this->boundingRect.getPosition().x + 
+				(this->boundingRect.getGlobalBounds().width / 4)*3 - this->visualNeuralNet[2][i].getGlobalBounds().width,
+				this->boundingRect.getPosition().y + 
+				(this->boundingRect.getGlobalBounds().height - 
+					rad * 2 * this->visualNeuralNet[2].size()) / 2 + this->visualNeuralNet[2][i].getGlobalBounds().height * i
 			)
 		);
 
@@ -109,16 +181,18 @@ void networkView::drawSynapses()
 			for (int connection = 0; connection < this->neuralNet->getNet()[layer][neuron]->getConnections().size(); connection++)
 			{
 				int target_layer, target_neuron;
-				target_layer = this->neuralNet->getNet()[layer][neuron]->getConnections()[connection]->target_Neuron->neuronType;
-				target_neuron = this->neuralNet->getNet()[layer][neuron]->getConnections()[connection]->target_Neuron->neuronID;
+				target_layer = this->neuralNet->getNet()[layer][neuron]->getConnections()[connection]->target_Neuron->layer;
+				target_neuron = this->neuralNet->getNet()[layer][neuron]->getConnections()[connection]->target_Neuron->neuron;
 
 				this->synapses.push_back(Line());
 				this->synapses.back().setEndPoints
 				(
 					this->visualNeuralNet[layer][neuron].getPosition().x + this->visualNeuralNet[layer][neuron].getGlobalBounds().width / 2,
 					this->visualNeuralNet[layer][neuron].getPosition().y + this->visualNeuralNet[layer][neuron].getGlobalBounds().height / 2,
-					this->visualNeuralNet[target_layer][target_neuron].getPosition().x + this->visualNeuralNet[target_layer][target_neuron].getGlobalBounds().width / 2,
-					this->visualNeuralNet[target_layer][target_neuron].getPosition().y + this->visualNeuralNet[target_layer][target_neuron].getGlobalBounds().height / 2
+					this->visualNeuralNet[target_layer][target_neuron].getPosition().x + 
+					this->visualNeuralNet[target_layer][target_neuron].getGlobalBounds().width / 2,
+					this->visualNeuralNet[target_layer][target_neuron].getPosition().y + 
+					this->visualNeuralNet[target_layer][target_neuron].getGlobalBounds().height / 2
 				);
 				if (this->neuralNet->getNet()[layer][neuron]->getConnections()[connection]->weight < 0)
 					this->synapses.back().setFillColor(sf::Color::Red);

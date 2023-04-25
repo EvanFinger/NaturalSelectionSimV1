@@ -4,55 +4,12 @@
 
 #include "ascii.h"
 #include"Genome.h"
+#include "simData.h"
 
 
 //************************ ENUMERATORS **************************
 
-enum neuronLayers
-{
-	INPUT = 0,
-	HIDDEN,
-	OUTPUT,
-	NUM_LAYERS
-};
 
-enum inputNeurons
-{
-	Age = 0, //Age
-	Rnd,     //Random
-	Bfd,     //Blocked Forward
-	PFd,     //Population Forward
-	PBw,     //Population Backward
-	BDx,     //Distance from Border (east/west)
-	BDy,     //Distance from Border (north/south)
-	BD,      //Closest Border
-	Lx,      //Location X
-	Ly,	 //Location Y
-	_max_input_
-};
-
-enum hiddenNeurons
-{
-	N0 = 0,
-	N1,
-	N2,
-	N3,
-	N4,
-	N5,
-	_max_hidden_
-};
-
-enum outputNeurons
-{
-	Stl = 0,
-	MFd,//Move Forward
-	MRn,     //Move Random Direction
-	MBw,     //Move Backward
-	MRL,     //Move Left/Right (-/+)
-	MX,      //Move West/East (-/+)
-	MY,      //Move South/North (-/+)
-	_max_output_
-};
 
 class Neuron;
 
@@ -69,10 +26,11 @@ class Neuron
 {
 public:
 
-	unsigned neuronType, neuronID;
+	unsigned layer, neuron;
 	bool hasConnection;
 
 	Neuron(unsigned type, unsigned id);
+	~Neuron();
 
 	void generateNewConnection(Neuron* _to, double _weight);
 	void feedForward();
@@ -97,7 +55,8 @@ private:
 class Net
 {
 public:
-	Net(const std::vector<unsigned>& topolog, Genome* genome);
+	Net(const std::vector<unsigned>& topolog, Genome* genome, simData* simulationData);
+	~Net();
 
 	void feedForward();
 
@@ -107,6 +66,9 @@ private:
 	std::vector<Layer> p_layers;  //private layers[layerID][neuronID]
 	Genome* genome;
 
+	simData* simulationData;
+
+	std::vector<double> softmax(std::vector<double> input) const;
 	void initConnections();
 	void cleanNetwork();
 };

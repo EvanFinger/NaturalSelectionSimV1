@@ -59,7 +59,7 @@ public:
 		this->selectionText.setFont(this->font);
 		this->selectionText.setCharacterSize(font_size);
 		this->selectionText.setFillColor(sf::Color::White);
-		this->selectionText.setString(std::to_string(default_selection));
+		this->selectionText.setString(std::to_string(this->selectedPopulation));
 		this->selectionText.setPosition
 		(
 			sf::Vector2f(
@@ -260,15 +260,23 @@ public:
 	PopulationSelector* populationSelector;
 	sf::Text popLabel;
 
+	//Neurons COnnections
+	PopulationSelector* connectionCount;
+	sf::Text connectionLabel;
+
 	//RESTART
 	sfGUI::Button* restart;
 	bool restartSimulation;
+
+	//PAUSE
+	sfGUI::Button* pausePlayButton;
 
 	void initFonts();
 	void initResButtons();
 	void initPopulationSelector();
 
 	void initRestartButton();
+	void initPausePlayButton();
 
 	simGui(simData* data);
 	~simGui();
@@ -279,11 +287,13 @@ public:
 	void updateResolutionButtons();
 	void updatePopulationSelector();
 	void updateRestartButton();
+	void updatePausePlayButton();
 
 	void masterRender();
 	void renderResolutionButtons();
 	void renderPopulationSelector();
 	void renderRestartButton();
+	void renderPausePlayButton();
 };
 
 
